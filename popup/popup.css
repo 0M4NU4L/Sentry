@@ -1,0 +1,146 @@
+body {
+  width: 350px;
+  padding: 15px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  margin: 0;
+}
+
+#warning-container {
+  padding: 15px;
+  border-radius: 8px;
+}
+
+#warning-container.warning {
+  background-color: #fff3f3;
+}
+
+#warning-container.safe {
+  background-color: #f0fff0;
+}
+
+h1 {
+  font-size: 18px;
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+.risk-score {
+  text-align: center;
+  margin: 15px 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+
+.progress {
+  height: 100%;
+  background-color: #ff4444;
+  transition: width 0.3s ease;
+}
+
+.button-container {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+button {
+  flex: 1;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.warning-btn {
+  background-color: #ff4444;
+  color: white;
+}
+
+.safe-btn {
+  background-color: #44aa44;
+  color: white;
+}
+
+.history-section {
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.site-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.risk-label {
+  background-color: #ff4444;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.site-url {
+  font-size: 13px;
+  color: #666;
+}
+
+.detection-time {
+  font-size: 12px;
+  color: #999;
+}
+
+.no-history {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+li {
+  padding: 5px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+li::before {
+  content: "⚠️";
+  margin-right: 8px;
+}
+
+.safe-status {
+  text-align: center;
+  padding: 20px;
+}
+
+.safe-status h2 {
+  color: #44aa44;
+  margin: 0 0 10px 0;
+}
