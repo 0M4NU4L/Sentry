@@ -1,4 +1,3 @@
-// URL Analysis
 function hasSuspiciousURL(url) {
     const patterns = [
       /https?:\/\/(\d{1,3}\.){3}\d{1,3}/, // IP address in URL
@@ -7,36 +6,36 @@ function hasSuspiciousURL(url) {
       /\.(tk|ml|ga|cf|gq)$/i // Suspicious TLDs
     ];
     return patterns.some(pattern => pattern.test(url));
+}
+
+// Domain Analysis
+function hasSuspiciousDomain(url) {
+  try {
+    const domain = new URL(url).hostname;
+    const trustedDomains = ['paypal', 'bankofamerica', 'wellsfargo'];
+    return trustedDomains.some(td => 
+      domain.includes(td) && !domain.endsWith(`.${td}.com`)
+    );
+  } catch {
+    return false;
   }
-  
-  // Domain Analysis
-  function hasSuspiciousDomain(url) {
-    try {
-      const domain = new URL(url).hostname;
-      const trustedDomains = ['paypal', 'bankofamerica', 'wellsfargo'];
-      return trustedDomains.some(td => 
-        domain.includes(td) && !domain.endsWith(`.${td}.com`)
-      );
-    } catch {
-      return false;
-    }
-  }
-  
-  // Content Analysis
-  function hasLoginForm() {
-    return document.querySelectorAll('input[type="password"]').length > 0 &&
-           !document.location.protocol.startsWith('https');
-  }
-  
-  function hasValidSSL() {
-    return document.location.protocol === 'https:';
-  }
-  
-  function hasRedirects() {
-    return window.performance
-      .getEntriesByType('navigation')
-      .some(entry => entry.redirectCount > 2);
-  }
+}
+
+// Content Analysis
+function hasLoginForm() {
+  return document.querySelectorAll('input[type="password"]').length > 0 &&
+         !document.location.protocol.startsWith('https');
+}
+
+function hasValidSSL() {
+  return document.location.protocol === 'https:';
+}
+
+function hasRedirects() {
+  return window.performance
+    .getEntriesByType('navigation')
+    .some(entry => entry.redirectCount > 2);
+}
 
 const PHISHING_PATTERNS = {
   // URL patterns that are suspicious
@@ -84,4 +83,10 @@ function analyzeForms(forms) {
   };
 }
 
-export { analyzeUrl, analyzeContent, analyzeForms };
+// Make functions globally available instead of using export
+window.PHISHING_RULES = {
+  analyzeUrl,
+  analyzeContent,
+  analyzeForms,
+  PHISHING_PATTERNS
+};

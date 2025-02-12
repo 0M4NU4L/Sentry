@@ -1,4 +1,5 @@
-import { analyzeUrl, analyzeContent, analyzeForms } from '../rules/phishing-rules.js';
+// Remove the import statement since content scripts can't use ES6 modules
+// Instead, we'll make the functions available globally
 
 function createWarningBanner(details) {
   const banner = document.createElement('div');
@@ -19,24 +20,34 @@ function extractPageFeatures() {
     content: document.body.innerText,
     forms: Array.from(document.forms).map(form => ({
       action: form.action,
-      inputs: Array.from(form.querySelectorAll('input')).map(input => input.type)
+      inputs: Array.from(form.querySelectorAll('input')).map(input => input.type || input.name || '')
     })),
     domain: window.location.hostname
   };
 }
 
+// Add message listener
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "checkPhishing") {
+    analyzePageForPhishing();
+  }
+});
+
 function analyzePageForPhishing() {
   const features = extractPageFeatures();
   
   const results = {
-    suspiciousUrl: analyzeUrl(features.url),
-    suspiciousContent: analyzeContent(features.content),
-    formAnalysis: analyzeForms(features.forms)
+    suspiciousUrl: hasSuspiciousURL(features.url) || window.PHISHING_RULES.analyzeUrl(features.url),
+    suspiciousContent: window.PHISHING_RULES.analyzeContent(features.content),
+    formAnalysis: window.PHISHING_RULES.analyzeForms(features.forms),
+    suspiciousDomain: hasSuspiciousDomain(features.url),
+    hasUnsecureLogin: hasLoginForm()
   };
   
   const riskScore = calculateRiskScore(results);
   
-  if (riskScore > 60) {
+  // Lower threshold and include more checks
+  if (riskScore > 20 || results.suspiciousDomain || results.hasUnsecureLogin) {
     createWarningBanner({
       message: `This website shows signs of being a phishing attempt (Risk Score: ${riskScore}%)`
     });
@@ -48,17 +59,22 @@ function analyzePageForPhishing() {
         url: features.url,
         riskScore,
         flags: Object.entries(results)
-          .filter(([_, value]) => value === true)
+          .filter(([_, value]) => 
+            value === true || (typeof value === 'object' && value.hasSensitiveInputs)
+          )
           .map(([key]) => key)
       }
     });
   }
 }
 
+// Update risk score calculation
 function calculateRiskScore(results) {
   const weights = {
-    suspiciousUrl: 40,
-    suspiciousContent: 30,
+    suspiciousUrl: 30,
+    suspiciousContent: 25,
+    suspiciousDomain: 25,
+    hasUnsecureLogin: 20,
     hasSensitiveInputs: 15,
     tooManySensitiveInputs: 15
   };
@@ -66,10 +82,12 @@ function calculateRiskScore(results) {
   let score = 0;
   if (results.suspiciousUrl) score += weights.suspiciousUrl;
   if (results.suspiciousContent) score += weights.suspiciousContent;
+  if (results.suspiciousDomain) score += weights.suspiciousDomain;
+  if (results.hasUnsecureLogin) score += weights.hasUnsecureLogin;
   if (results.formAnalysis.hasSensitiveInputs) score += weights.hasSensitiveInputs;
   if (results.formAnalysis.tooManySensitiveInputs) score += weights.tooManySensitiveInputs;
   
-  return score;
+  return Math.min(100, score); // Cap at 100%
 }
 
 // Run analysis when page loads

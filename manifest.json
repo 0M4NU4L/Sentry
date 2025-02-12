@@ -2,14 +2,17 @@
     "manifest_version": 3,
     "name": "Sentry",
     "version": "1.0",
-    "permissions": ["tabs", "activeTab", "storage", "webRequest", "scripting"],
+    "permissions": ["tabs", "activeTab", "storage", "webRequest", "scripting", "notifications"],
     "host_permissions": ["<all_urls>"],
     "background": {
       "service_worker": "background/service-worker.js"
     },
     "content_scripts": [{
       "matches": ["<all_urls>"],
-      "js": ["content-scripts/detector.js"],
+      "js": [
+        "rules/phishing-rules.js",
+        "content-scripts/detector.js"
+      ],
       "css": ["content-scripts/warning-banner.css"],
       "run_at": "document_end"
     }],

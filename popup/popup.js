@@ -47,8 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     warningContainer.classList.add('safe');
     detailsList.innerHTML = `
       <div class="safe-status">
-        <h2>✓ No Phishing Detected</h2>
-        <p>This website appears to be safe.</p>
+        <h2>No Phishing Detected</h2>
       </div>
     `;
   }

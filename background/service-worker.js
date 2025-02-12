@@ -10,28 +10,41 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
   });
 
-chrome.runtime.onMessage.addListener((message, sender) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'PHISHING_DETECTED') {
-    const { url, riskScore, flags } = message.data;
-    
-    // Store detection info
-    detectedPhishingSites.set(url, {
-      riskScore,
-      flags,
-      timestamp: Date.now()
-    });
-    
-    // Update extension badge
-    chrome.action.setBadgeText({
-      text: '!',
-      tabId: sender.tab.id
-    });
-    
-    chrome.action.setBadgeBackgroundColor({
-      color: '#FF0000',
-      tabId: sender.tab.id
-    });
+    try {
+      const { url, riskScore, flags } = message.data;
+      
+      // Store detection info
+      detectedPhishingSites.set(url, {
+        riskScore,
+        flags,
+        timestamp: Date.now()
+      });
+      
+      // Update extension badge
+      chrome.action.setBadgeText({
+        text: '!',
+        tabId: sender.tab.id
+      });
+      
+      chrome.action.setBadgeBackgroundColor({
+        color: '#FF0000',
+        tabId: sender.tab.id
+      });
+
+      // Show notification
+      chrome.notifications.create({
+        type: 'basic',
+        iconUrl: 'icons/icon128.png',
+        title: 'Phishing Alert',
+        message: `Suspicious activity detected on: ${new URL(url).hostname}`
+      });
+    } catch (error) {
+      console.error('Error handling phishing detection:', error);
+    }
   }
+  return true;
 });
 
 // Clean up old detections periodically
